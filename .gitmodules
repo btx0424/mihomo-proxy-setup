@@ -1,0 +1,3 @@
+[submodule "Meta-Docs"]
+	path = Meta-Docs
+	url = https://github.com/MetaCubeX/Meta-Docs.git

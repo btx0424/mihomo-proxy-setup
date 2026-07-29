@@ -1,0 +1,48 @@
+# --- secrets / local subscriptions ---
+urls.txt
+*.pem
+*.key
+*.token
+
+# --- mihomo runtime (generated; do not commit) ---
+/config/
+/mihomo.sh
+*.log
+*.db
+*.pid
+
+# --- binary releases (do not commit; download from https://wiki.metacubex.one/en/startup/) ---
+/mihomo
+/mihomo-*
+*.gz
+*.zip
+*.deb
+*.rpm
+*.pkg.tar.zst
+
+# --- local scratch ---
+/_test/
+/tmp/
+*.tmp
+*.bak
+*~
+
+# --- editor / OS ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+
+# --- Python / shell leftovers ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Cursor: keep project skills only ---
+.cursor/*
+!.cursor/skills/
+!.cursor/skills/**

@@ -131,7 +131,7 @@ mihomo select PROXY '[provider2] 香港S03 | IEPL'
 mihomo now
 ```
 
-**Do not skip `bench`.** A dead upstream looks like curl `SSL ... unexpected eof` even when the local proxy is fine.
+**Do not skip `bench`.** A dead upstream looks like curl `SSL ... unexpected eof` even when the local proxy is fine. After picking a node, run **`mihomo check`** to verify Google / GitHub / Hugging Face for your workflow.
 
 ### 5. Use the proxy in a terminal
 
@@ -153,18 +153,39 @@ Browsers usually ignore shell env vars — use a system proxy setting or browser
 | `mihomo start` / `stop` / `restart` / `status` | Daemon lifecycle |
 | `mihomo test` | Validate `config/config.yaml` |
 | `mihomo bench [GROUP]` | Latency-test nodes (default group: `PROXY`) |
+| `mihomo check` | Parallel usage checks (Google, GitHub, Hugging Face) via `:7890` |
+| `mihomo check --direct` | Same checks without mihomo (baseline) |
+| `mihomo check --json` | Machine-readable report |
+| `mihomo providers` | Time since each subscription provider was last fetched |
+| `mihomo refresh` | Pull subscription now (all providers); shows updated ages |
+| `mihomo refresh provider1` | Refresh one provider |
+| `mihomo update` | Install latest mihomo from GitHub (uses local proxy :7890 by default) |
+| `mihomo update --restart` | Update and restart daemon if it was running |
 | `mihomo nodes [GROUP]` | List members (`*` = current) |
 | `mihomo select GROUP NODE` | Switch selection |
 | `mihomo now` | Show current selection chain |
 | `mihomo log` | Tail `config/mihomo.log` |
 | `proxy-on` | Export `http_proxy` / `https_proxy` / `all_proxy` |
 | `proxy-off` | Unset proxy env vars |
+| `mihomo web` | Optional local web UI (same operations; see `web-ui/README.md`) |
 
 Without shell helpers, call the script directly:
 
 ```bash
 ./mihomo.sh start
 ```
+
+---
+
+## Refresh subscription vs change URL
+
+| Goal | What to do |
+|------|------------|
+| Pull latest nodes from the **same** URL | `mihomo refresh` (or web UI **Subscription → Refresh**) |
+| See when it was last fetched | `mihomo providers` |
+| **Change** URL or add subscriptions | Edit `urls.txt`, then `bash .cursor/skills/mihomo-setup/scripts/bootstrap.sh .` and `mihomo restart` |
+
+Mihomo also auto-refetches on a timer (`interval: 86400` in generated config). Manual refresh uses the API `PUT /providers/proxies/<name>`; `updatedAt` from the API drives “time since last refresh”.
 
 ---
 
@@ -179,6 +200,7 @@ Without shell helpers, call the script directly:
 ├── README.md
 ├── .gitmodules
 ├── Meta-Docs/               # official docs submodule (reference)
+├── web-ui/                  # optional uv project: `mihomo web` or `uv run mihomo-web`
 ├── config/                  # runtime; gitignored
 └── .cursor/skills/mihomo-setup/
     ├── SKILL.md
@@ -201,7 +223,7 @@ git submodule update --remote Meta-Docs
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | `Connection refused` on `:7890` | Not running | `mihomo start` |
-| `SSL ... unexpected eof` via proxy | Dead upstream node | `mihomo bench` then `select` |
+| `SSL ... unexpected eof` via proxy | Dead upstream node | `mihomo bench` then `select`, then `mihomo check` |
 | Empty providers / fetch errors | Bad/blocked URL | `curl -A clash.meta '<url>'` |
 | DNS bind errors | Port in use | Edit `config.yaml` / ignore if proxy still works |
 | `mihomo: command not found` | RC not sourced | `source ~/.zshrc` or re-run `install-shell.sh` |

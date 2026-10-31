@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mihomo</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Mihomo</h1>
+    <p class="sub">Same commands as <code>mihomo.sh</code> — local UI only</p>
+  </header>
+
+  <section class="card" id="status-card">
+    <div class="row head">
+      <h2>Daemon</h2>
+      <button type="button" class="ghost" id="btn-refresh-status">Refresh</button>
+    </div>
+    <pre id="status-out" class="mono out">Loading…</pre>
+    <p id="binary-line" class="hint">Mihomo binary: —</p>
+    <div class="row actions">
+      <button type="button" id="btn-start">Start</button>
+      <button type="button" id="btn-stop">Stop</button>
+      <button type="button" id="btn-restart">Restart</button>
+      <button type="button" class="ghost" id="btn-test">Test config</button>
+      <button type="button" class="ghost" id="btn-binary-update">Update mihomo</button>
+    </div>
+    <p id="action-msg" class="msg" hidden></p>
+  </section>
+
+  <section class="card" id="subscription-card">
+    <div class="row head">
+      <h2>Subscription</h2>
+      <button type="button" class="ghost" id="btn-subscription-reload">Reload</button>
+    </div>
+    <p class="hint">Last fetch from your subscription URL(s). Change URLs in <code>urls.txt</code> → re-run <code>bootstrap.sh</code>, not this button.</p>
+    <table id="subscription-table">
+      <thead><tr><th>Provider</th><th>Since refresh</th><th>Nodes</th><th></th></tr></thead>
+      <tbody id="subscription-tbody"><tr><td colspan="4">Loading…</td></tr></tbody>
+    </table>
+    <div class="row actions">
+      <button type="button" id="btn-subscription-refresh">Refresh all</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row head">
+      <h2>Selection</h2>
+      <label class="inline">
+        Group
+        <select id="group-select"></select>
+      </label>
+    </div>
+    <p id="now-line" class="now">—</p>
+    <div class="row actions">
+      <button type="button" id="btn-bench">Bench (latency)</button>
+      <button type="button" class="ghost" id="btn-reload-nodes">Reload nodes</button>
+    </div>
+    <p id="bench-hint" class="hint">Bench may take a minute — same as <code>mihomo bench</code>.</p>
+    <div id="bench-results" hidden>
+      <table>
+        <thead><tr><th>#</th><th>ms</th><th>Node</th><th></th></tr></thead>
+        <tbody id="bench-tbody"></tbody>
+      </table>
+      <p id="bench-summary" class="hint"></p>
+    </div>
+    <ul id="node-list" class="nodes"></ul>
+  </section>
+
+  <section class="card" id="check-card">
+    <div class="row head">
+      <h2>Usage connectivity</h2>
+      <label class="inline">
+        <input type="checkbox" id="check-direct" />
+        Direct (no mihomo)
+      </label>
+    </div>
+    <p class="hint">Parallel probes — same as <code>mihomo check</code> (Google, GitHub clone/raw, HF API/download/auth).</p>
+    <div class="row actions">
+      <button type="button" id="btn-check">Run check</button>
+    </div>
+    <table id="check-table" hidden>
+      <thead><tr><th>Status</th><th>Time</th><th>Check</th><th>Detail</th></tr></thead>
+      <tbody id="check-tbody"></tbody>
+    </table>
+    <p id="check-summary" class="hint" hidden></p>
+  </section>
+
+  <section class="card">
+    <div class="row head">
+      <h2>Terminal proxy</h2>
+    </div>
+    <p class="hint">Shell env only — run in each terminal (or use <code>proxy-on</code> from your RC).</p>
+    <pre id="proxy-on" class="mono snippet"></pre>
+    <div class="row actions">
+      <button type="button" class="ghost" id="copy-on">Copy proxy-on exports</button>
+      <button type="button" class="ghost" id="copy-off">Copy proxy-off</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row head">
+      <h2>Log</h2>
+      <button type="button" class="ghost" id="btn-reload-log">Refresh</button>
+    </div>
+    <pre id="log-out" class="mono out log">—</pre>
+  </section>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

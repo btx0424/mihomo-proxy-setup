@@ -53,8 +53,14 @@ Commands:
   groups             List selectable proxy groups
   nodes [GROUP]      List members of a group (default: PROXY)
   bench [GROUP]      Latency-test nodes in a group and print a table
+  check [--direct] [--json] [--timeout SEC]
+                     Parallel usage checks (Google, GitHub, Hugging Face) via :7890
+  providers          Show subscription fetch time (last update per provider)
+  refresh [NAME...]  Fetch subscription now (all providers if no names)
+  update [--restart] [--force]   Download latest mihomo from GitHub releases
   select GROUP NODE  Switch GROUP to NODE (use exact name from \`nodes\`)
   now [GROUP]        Show current selection (default: PROXY)
+  web                Start optional local web UI (requires web-ui/ uv sync once)
 
 Examples:
   $(basename "$0") bench
@@ -403,6 +409,55 @@ print(f"selected: {group} -> {cur}")
 PY
 }
 
+cmd_check() {
+  local probe="$ROOT/web-ui/mihomo_web/usage_probes.py"
+  if [[ ! -f "$probe" ]]; then
+    echo "error: usage probe script missing at $probe" >&2
+    exit 1
+  fi
+  export MIHOMO_HOME="$ROOT"
+  python3 "$probe" "$@"
+}
+
+cmd_providers() {
+  local script="$ROOT/web-ui/mihomo_web/subscription.py"
+  [[ -f "$script" ]] || { echo "error: $script not found" >&2; exit 1; }
+  export MIHOMO_HOME="$ROOT"
+  python3 "$script" status "$@"
+}
+
+cmd_refresh() {
+  local script="$ROOT/web-ui/mihomo_web/subscription.py"
+  [[ -f "$script" ]] || { echo "error: $script not found" >&2; exit 1; }
+  export MIHOMO_HOME="$ROOT"
+  python3 "$script" refresh "$@"
+}
+
+cmd_update() {
+  local script="$ROOT/web-ui/mihomo_web/binary_update.py"
+  [[ -f "$script" ]] || { echo "error: $script not found" >&2; exit 1; }
+  export MIHOMO_HOME="$ROOT"
+  python3 "$script" update "$@"
+}
+
+cmd_web() {
+  local web_dir="$ROOT/web-ui"
+  [[ -d "$web_dir" ]] || {
+    echo "error: web-ui not found at $web_dir" >&2
+    exit 1
+  }
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "error: uv not found; install uv or run: cd web-ui && python -m mihomo_web" >&2
+    exit 1
+  fi
+  if [[ ! -x "$web_dir/.venv/bin/python" ]]; then
+    echo "==> First run: uv sync in web-ui"
+    (cd "$web_dir" && uv sync)
+  fi
+  export MIHOMO_HOME="$ROOT"
+  exec uv run --project "$web_dir" mihomo-web "$@"
+}
+
 main() {
   local cmd="${1:-}"
   case "$cmd" in
@@ -417,7 +472,12 @@ main() {
     nodes)   shift; cmd_nodes "$@" ;;
     now)     shift; cmd_now "$@" ;;
     bench)   shift; cmd_bench "$@" ;;
+    check)   shift; cmd_check "$@" ;;
+    providers) shift; cmd_providers "$@" ;;
+    refresh) shift; cmd_refresh "$@" ;;
+    update)  shift; cmd_update "$@" ;;
     select)  shift; cmd_select "$@" ;;
+    web)     shift; cmd_web "$@" ;;
     -h|--help|help|"") usage ;;
     *)
       echo "unknown command: $cmd" >&2
